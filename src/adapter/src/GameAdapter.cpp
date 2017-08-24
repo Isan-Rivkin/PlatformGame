@@ -51,7 +51,8 @@ void GameAdapter::run()
 	 * authenthicate
 	 */
 	do{
-	cout << "Choose Action: " <<endl;
+	cout << "### Choose Action: ###" <<endl;
+	cout << "######################" <<endl;
 	cout <<"Login: <login>"<<endl;
 	cout <<"Register: <register>"<<endl;
 		cin >> command;
@@ -59,6 +60,7 @@ void GameAdapter::run()
 		cin >>name;
 		cout <<"Enter password:" <<endl;
 		cin >>pwd;
+		cout << "######################" <<endl;
 		int loginCMD = parseCLICommand(command);
 		switch(loginCMD)
 		{
@@ -176,6 +178,7 @@ void GameAdapter::run()
 				cout <<"Wrong word length, hit <init> and try again:" <<endl;
 				break;
 			}
+			cout << "### Wait for opponents word to be sent ###" <<endl;
 			string final_msg = utils.intToString(SESSION_START)+ ":" + word;
 			api->sendToPeer(peer, final_msg.c_str(), final_msg.length());
 			break;
@@ -222,6 +225,9 @@ void GameAdapter::run()
 		}
 		case DISSCONECT_SERVER:
 		{
+			api->exit();
+			connect = false;
+			logged_in = false;
 			break;
 		}
 		case HELP:
@@ -237,7 +243,7 @@ void GameAdapter::run()
 		}
 		}
 	}
-	cout << "[Game:] Disconnected from server"<<endl;
+	cout << "[Main Game Loop:] Disconnected from server"<<endl;
 }
 
 void GameAdapter::printServerInstructions() const {
