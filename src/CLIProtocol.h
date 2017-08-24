@@ -24,6 +24,8 @@
 // after losing the user input quit
 #define SESSION_QUIT_LOST 28
 #define SESSION_SCORE_UPDATE 29
+// when stuck in game loop
+#define SESSIOM_END_LOOP 30
 /**********************************************************************
  ************************SERVER PROTOCOL***************************
  **********************************************************************/
@@ -38,5 +40,5 @@
 #define HELP 19
 #define CONFIRM_OTHER_USER_PLAY 20
 #define DECLINE_OTHER_USER_PLAY 21
-// start from 32
+// start from 40
 #endif /* CLIPROTOCOL_H_ */

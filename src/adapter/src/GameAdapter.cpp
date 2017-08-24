@@ -45,6 +45,7 @@ void GameAdapter::run()
 	else
 	{
 		cout <<"Exisining now ... First command must be <connect>"<<endl;
+		return;
 	}
 	/**
 	 * authenthicate
@@ -231,7 +232,7 @@ void GameAdapter::run()
 		default:
 		{
 			printServerInstructions();
-			cout <<"[Game Loop:] Unrecognized Command: "<<command<<endl;
+			cout <<"[Main Loop:] Unrecognized Command: "<<command<<endl;
 			break;
 		}
 		}
@@ -399,6 +400,7 @@ void GameAdapter::initCLICommandList()
 	pair<string,int> cmd14;
 	pair<string,int> cmd15;
 	pair<string,int> cmd16;
+	pair<string,int> cmd17;
 
 	cmd1.first ="connect";
 	cmd1.second=CONNECT_TO_SERVER;
@@ -432,6 +434,8 @@ void GameAdapter::initCLICommandList()
 	cmd15.second=SESSION_START_GUESS;
 	cmd16.first ="quit";
 	cmd16.second=SESSION_QUIT_LOST;
+	cmd17.first ="force";
+	cmd17.second=SESSIOM_END_LOOP;
 	this->cli_commands_map.push_back(cmd1);
 	this->cli_commands_map.push_back(cmd2);
 	this->cli_commands_map.push_back(cmd3);
@@ -448,6 +452,7 @@ void GameAdapter::initCLICommandList()
 	this->cli_commands_map.push_back(cmd14);
 	this->cli_commands_map.push_back(cmd15);
 	this->cli_commands_map.push_back(cmd16);
+	this->cli_commands_map.push_back(cmd17);
 //
 }
 
@@ -575,9 +580,13 @@ void GameAdapter::startPlayingSession()
 		int command = parseCLICommand(cmd);
 		switch(command)
 		{
+		case SESSIOM_END_LOOP:
+		{
+			playing =false;
+			break;
+		}
 		case SESSION_QUIT_LOST:
 		{
-			cout << "[Game:]Quiting and returning to main cin >> " <<endl;
 			playing=false;
 			string myScore = utils.intToString(SESSION_SCORE_UPDATE);
 			myScore+=":";
