@@ -385,6 +385,8 @@ void GameAdapter::printGameInstructions() const
 		cout << "Guess the oppoenents word ! " <<endl;
 		cout << "==============================================================" <<endl;
 		cout <<"Guess a letter:                       <g>"<<endl;
+		cout <<"To initialize accepted offer game:    <init>"<<endl;
+		cout << "Exit the server:                     <exit>" <<endl;
 		cout << "==============================================================" <<endl;
 }
 
@@ -407,6 +409,7 @@ void GameAdapter::initCLICommandList()
 	pair<string,int> cmd15;
 	pair<string,int> cmd16;
 	pair<string,int> cmd17;
+	pair<string,int> cmd18;
 
 	cmd1.first ="connect";
 	cmd1.second=CONNECT_TO_SERVER;
@@ -442,6 +445,8 @@ void GameAdapter::initCLICommandList()
 	cmd16.second=SESSION_QUIT_LOST;
 	cmd17.first ="force";
 	cmd17.second=SESSIOM_END_LOOP;
+	cmd18.first ="gHelp";
+	cmd18.second=SESSION_HELP_GAME;
 	this->cli_commands_map.push_back(cmd1);
 	this->cli_commands_map.push_back(cmd2);
 	this->cli_commands_map.push_back(cmd3);
@@ -581,11 +586,16 @@ void GameAdapter::startPlayingSession()
 	string cmd="";
 	while(playing)
 	{
-		cout << "Enter guess: (<help>) "<<endl;
+		cout << "Enter guess: (<gHelp>) "<<endl;
 		cin >> cmd;
 		int command = parseCLICommand(cmd);
 		switch(command)
 		{
+		case SESSION_HELP_GAME:
+		{
+			printGameInstructions();
+			break;
+		}
 		case SESSIOM_END_LOOP:
 		{
 			playing =false;
@@ -612,6 +622,14 @@ void GameAdapter::startPlayingSession()
 			playing = false;
 			api->sendToPeer(winner, msg.c_str(), msg.length());
 			api ->endGame(utils.sizeToString(_game->getScore()));
+			break;
+		}
+		case DISSCONECT_SERVER:
+		{
+			playing =false;
+			connect =false;
+			logged_in = false;
+			api->exit();
 			break;
 		}
 		default:
