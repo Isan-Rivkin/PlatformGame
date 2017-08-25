@@ -94,6 +94,19 @@ void GameAdapter::run()
 		int parsed_cmd = parseCLICommand(command);
 		switch(parsed_cmd)
 		{
+		// <quit>
+		case SESSION_QUIT_LOST:
+		{
+			cout << "Redirecting  back to server, score : " << _game->getScore()<<endl;
+			playing=false;
+			string myScore = utils.intToString(SESSION_SCORE_UPDATE);
+			myScore+=":";
+			myScore += utils.sizeToString(_game->getScore());
+			UserDetails winner("",last_offer_ip,utils.castToSize(last_offer_port));
+			api->sendToPeer(winner,myScore.c_str(),myScore.length());
+			api->endGame(utils.sizeToString(_game->getScore()));
+			break;
+		}
 		case PLAY_WITH_Y:
 		{
 			if(!playing)
@@ -316,8 +329,21 @@ void GameAdapter::handleUDP(const char* msg)
 		break;
 	}
 	// other peer has asked to terminate the game.
-	case SESSION_TERMINATE:
+	case SESSION_END_LOOP:
 	{
+		cout << "#########################################################################"<<endl;
+		cout << "                  USER HAVE TERMINATED THE GAME                   " <<endl;
+		cout << "#########################################################################"<<endl;
+		playing=false;
+		string peers_word = "";
+		if(msg[2] != ':')
+			return;
+		for(size_t i=3;i<strlen(msg);++i)
+			peers_word += msg[i];
+		cout << "# OTHER PEERS SCORE: " <<endl;
+		cout << "# "<<last_offer_ip << " : " <<last_offer_port << " SCORE = " << peers_word<<endl;
+		cout <<"# Enter <quit> to finish and redirect to server ! " <<endl;
+		cout << "#########################################################################"<<endl;
 		break;
 	}
 	// other peer has won -> terminate the game.
@@ -386,6 +412,7 @@ void GameAdapter::printGameInstructions() const
 		cout << "==============================================================" <<endl;
 		cout <<"Guess a letter:                       <g>"<<endl;
 		cout <<"To initialize accepted offer game:    <init>"<<endl;
+		cout <<"Terminate the game session:           <force>" <<endl;
 		cout << "Exit the server:                     <exit>" <<endl;
 		cout << "==============================================================" <<endl;
 }
@@ -444,7 +471,7 @@ void GameAdapter::initCLICommandList()
 	cmd16.first ="quit";
 	cmd16.second=SESSION_QUIT_LOST;
 	cmd17.first ="force";
-	cmd17.second=SESSIOM_END_LOOP;
+	cmd17.second=SESSION_END_LOOP;
 	cmd18.first ="gHelp";
 	cmd18.second=SESSION_HELP_GAME;
 	this->cli_commands_map.push_back(cmd1);
@@ -464,6 +491,8 @@ void GameAdapter::initCLICommandList()
 	this->cli_commands_map.push_back(cmd15);
 	this->cli_commands_map.push_back(cmd16);
 	this->cli_commands_map.push_back(cmd17);
+	this->cli_commands_map.push_back(cmd18);
+
 //
 }
 
@@ -596,11 +625,7 @@ void GameAdapter::startPlayingSession()
 			printGameInstructions();
 			break;
 		}
-		case SESSIOM_END_LOOP:
-		{
-			playing =false;
-			break;
-		}
+		// <quit>
 		case SESSION_QUIT_LOST:
 		{
 			playing=false;
@@ -612,12 +637,14 @@ void GameAdapter::startPlayingSession()
 			api->endGame(utils.sizeToString(_game->getScore()));
 			break;
 		}
-		case SESSION_TERMINATE:
+		//<force>
+		case SESSION_END_LOOP:
 		{
 			cout << "Redirecting  back to server, score : " << _game->getScore()<<endl;
 			UserDetails winner("",last_offer_ip,utils.castToSize(last_offer_port));
 			string msg = "";
-			msg+=utils.intToString(SESSION_TERMINATE);
+			msg+=utils.intToString(SESSION_END_LOOP);
+			msg+=":";
 			msg+=utils.sizeToString(_game->getScore());
 			playing = false;
 			api->sendToPeer(winner, msg.c_str(), msg.length());

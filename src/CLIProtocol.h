@@ -25,7 +25,7 @@
 #define SESSION_QUIT_LOST 28
 #define SESSION_SCORE_UPDATE 29
 // when stuck in game loop
-#define SESSIOM_END_LOOP 30
+#define SESSION_END_LOOP 30
 // game session help instructions
 #define SESSION_HELP_GAME 31
 /**********************************************************************
